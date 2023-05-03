@@ -1,9 +1,8 @@
 import * as cdk from 'aws-cdk-lib'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
+import * as apigw from 'aws-cdk-lib/aws-apigateway'
+import { HitCounter } from './hitconter';
 import { Duration, Stack, StackProps } from 'aws-cdk-lib';
-import * as sns from 'aws-cdk-lib/aws-sns';
-import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
-import * as sqs from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 
 export class CdkWorkshopStack extends Stack {
@@ -16,5 +15,12 @@ export class CdkWorkshopStack extends Stack {
       handler: 'hello.handler'
     });
 
+    const helloWithCounter = new HitCounter(this, 'HelloHitCounter', {
+      downstream: hello
+    })
+
+    new apigw.LambdaRestApi(this, 'Endpoint', {
+      handler: helloWithCounter.handler
+    });
   }
 }
